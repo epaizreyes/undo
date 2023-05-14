@@ -9,15 +9,15 @@
 template<typename T, typename U>
 inline void expect_eq(const T& expected, const U& value,
                       const char* file, const int line) {
-  if (expected != value) {
-    std::cout << file << ":" << line << ": failed\n"
-              << "  Expected: " << expected << "\n"
-              << "  Actual: " << value << std::endl;
-    std::abort();
-  }
+    if (expected != value) {
+        std::cout << file << ":" << line << ": failed\n"
+                  << "  Expected: " << expected << "\n"
+                  << "  Actual: " << value << std::endl;
+        std::abort();
+    }
 }
 
-#define EXPECT_EQ(expected, value)                      \
+#define EXPECT_EQ(expected, value)              \
   expect_eq(expected, value, __FILE__, __LINE__);
 
 #define EXPECT_TRUE(value)                      \

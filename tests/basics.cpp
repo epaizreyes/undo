@@ -13,41 +13,41 @@ using namespace undo;
 
 int main(int argc, char** argv)
 {
-  int model = 0;
-  Cmd cmd1(model, 1, 0);
-  Cmd cmd2(model, 2, 1);
+    int model = 0;
+    std::shared_ptr<Cmd> cmd1 = std::make_shared<Cmd>(model, 1, 0);
+    std::shared_ptr<Cmd> cmd2 = std::make_shared<Cmd>(model, 2, 1);
 
-  EXPECT_EQ(0, model);
-  cmd1.redo();
-  EXPECT_EQ(1, model);
-  cmd2.redo();
-  EXPECT_EQ(2, model);
+    EXPECT_EQ(0, model);
+    cmd1->redo();
+    EXPECT_EQ(1, model);
+    cmd2->redo();
+    EXPECT_EQ(2, model);
 
-  UndoHistory history;
-  EXPECT_FALSE(history.canUndo());
-  EXPECT_FALSE(history.canRedo());
-  history.add(&cmd1);
-  EXPECT_TRUE(history.canUndo());
-  EXPECT_FALSE(history.canRedo());
-  history.add(&cmd2);
-  EXPECT_TRUE(history.canUndo());
-  EXPECT_FALSE(history.canRedo());
+    UndoHistory history;
+    EXPECT_FALSE(history.canUndo());
+    EXPECT_FALSE(history.canRedo());
+    history.add(cmd1);
+    EXPECT_TRUE(history.canUndo());
+    EXPECT_FALSE(history.canRedo());
+    history.add(cmd2);
+    EXPECT_TRUE(history.canUndo());
+    EXPECT_FALSE(history.canRedo());
 
-  history.undo();
-  EXPECT_EQ(1, model);
-  EXPECT_TRUE(history.canUndo());
-  EXPECT_TRUE(history.canRedo());
-  history.undo();
-  EXPECT_EQ(0, model);
-  EXPECT_FALSE(history.canUndo());
-  EXPECT_TRUE(history.canRedo());
+    history.undo();
+    EXPECT_EQ(1, model);
+    EXPECT_TRUE(history.canUndo());
+    EXPECT_TRUE(history.canRedo());
+    history.undo();
+    EXPECT_EQ(0, model);
+    EXPECT_FALSE(history.canUndo());
+    EXPECT_TRUE(history.canRedo());
 
-  history.redo();
-  EXPECT_EQ(1, model);
-  EXPECT_TRUE(history.canUndo());
-  EXPECT_TRUE(history.canRedo());
-  history.redo();
-  EXPECT_EQ(2, model);
-  EXPECT_TRUE(history.canUndo());
-  EXPECT_FALSE(history.canRedo());
+    history.redo();
+    EXPECT_EQ(1, model);
+    EXPECT_TRUE(history.canUndo());
+    EXPECT_TRUE(history.canRedo());
+    history.redo();
+    EXPECT_EQ(2, model);
+    EXPECT_TRUE(history.canUndo());
+    EXPECT_FALSE(history.canRedo());
 }

@@ -4,59 +4,61 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef UNDO_HISTORY_H_INCLUDED
-#define UNDO_HISTORY_H_INCLUDED
-#pragma once
+#ifndef UNDO_HISTORY_H__
+#define UNDO_HISTORY_H__
+
+#include <memory>
 
 namespace undo {
 
-  class UndoCommand;
-  class UndoState;
+class UndoCommand;
+class UndoState;
 
-  class UndoHistoryDelegate {
-  public:
-    virtual ~UndoHistoryDelegate() { }
-    virtual void onDeleteUndoState(UndoState* state) { }
-  };
+class UndoHistoryDelegate {
+public:
+    virtual ~UndoHistoryDelegate() {}
+    virtual void onDeleteUndoState(std::shared_ptr<UndoState> state) {}
+};
 
-  class UndoHistory {
-  public:
-    UndoHistory(UndoHistoryDelegate* delegate = nullptr);
+class UndoHistory {
+public:
+    UndoHistory(std::shared_ptr<UndoHistoryDelegate> delegate = nullptr);
     virtual ~UndoHistory();
 
-    const UndoState* firstState()   const { return m_first; }
-    const UndoState* lastState()    const { return m_last; }
-    const UndoState* currentState() const { return m_cur; }
+    const std::shared_ptr<UndoState> firstState()   const { return m_first; }
+    const std::shared_ptr<UndoState> lastState()    const { return m_last; }
+    const std::shared_ptr<UndoState> currentState() const { return m_cur; }
 
-    void add(UndoCommand* cmd);
+    void add(std::shared_ptr<UndoCommand> cmd);
     bool canUndo() const;
     bool canRedo() const;
     void undo();
     void redo();
 
-    // Deletes the whole redo history. Can be called before an add()
-    // to create a linear undo history.
+    /// Deletes the whole redo history. Can be called before an add()
+    /// to create a linear undo history.
     void clearRedo();
 
-    // Deletes the first UndoState. It can be useful to limit the size
-    // of the undo history.
+    /// Deletes the first UndoState. It can be useful to limit the size
+    /// of the undo history.
     bool deleteFirstState();
 
-    // This can be used to jump to a specific UndoState in the whole
-    // history.
-    void moveTo(const UndoState* new_state);
+    /// This can be used to jump to a specific UndoState in the whole
+    /// history.
+    void moveTo(const std::shared_ptr<UndoState>& new_state);
 
-  private:
-    const UndoState* findCommonParent(const UndoState* a,
-                                      const UndoState* b);
-    void deleteState(UndoState* state);
+private:
+    std::shared_ptr<const UndoState> findCommonParent(const std::shared_ptr<const UndoState>& a,
+                                                      const std::shared_ptr<const UndoState>& b);
+    
+    void deleteState(std::shared_ptr<UndoState> state);
 
-    UndoHistoryDelegate* m_delegate;
-    UndoState* m_first;
-    UndoState* m_last;
-    UndoState* m_cur;          // Current action that can be undone
-  };
+    std::shared_ptr<UndoHistoryDelegate> m_delegate;
+    std::shared_ptr<UndoState> m_first;
+    std::shared_ptr<UndoState> m_last;
+    std::shared_ptr<UndoState> m_cur;          // Current action that can be undone
+};
 
 } // namespace undo
 
-#endif  // HISTORY_H_INCLUDED
+#endif  // UNDO_HISTORY_H__
