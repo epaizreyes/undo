@@ -180,38 +180,49 @@ std::shared_ptr<const UndoState> UndoHistory::findCommonParent(const std::shared
 
 void UndoHistory::moveTo(const std::shared_ptr<UndoState>& new_state)
 {
-  std::shared_ptr<const UndoState> common = findCommonParent(m_cur, new_state);
+    std::shared_ptr<const UndoState> common = findCommonParent(m_cur, new_state);
 
-  if (m_cur) {
-    while (m_cur != common) {
-        m_cur->m_cmd->undo();
-        m_cur = m_cur->m_parent;
-    }
-  }
-
-  if (new_state) {
-    std::stack<std::shared_ptr<const UndoState>> redo_parents;
-    std::shared_ptr<const UndoState> p = new_state;
-    while (p != common) {
-        redo_parents.push(p);
-        p = p->m_parent;
+    if (m_cur) {
+        while (m_cur != common) {
+            m_cur->m_cmd->undo();
+            m_cur = m_cur->m_parent;
+        }
     }
 
-    while (!redo_parents.empty()) {
-        p = redo_parents.top();
-        redo_parents.pop();
+    if (new_state) {
+        std::stack<std::shared_ptr<const UndoState>> redo_parents;
+        std::shared_ptr<const UndoState> p = new_state;
+        while (p != common) {
+            redo_parents.push(p);
+            p = p->m_parent;
+        }
 
-        p->m_cmd->redo();
-    }
-  }
+        while (!redo_parents.empty()) {
+            p = redo_parents.top();
+            redo_parents.pop();
 
-  m_cur = std::const_pointer_cast<UndoState>(new_state);
+            p->m_cmd->redo();
+        }
+     }
+
+    m_cur = std::const_pointer_cast<UndoState>(new_state);
 }
 
 void UndoHistory::deleteState(std::shared_ptr<UndoState> state)
 {
+    // Delete the state from the delegate
     if (m_delegate)
         m_delegate->onDeleteUndoState(state);
+    
+    // Clear all the shared pointers related to this state
+    if (state->m_cmd)
+        state->m_cmd->dispose();
+
+    state->m_prev = nullptr;
+    state->m_next = nullptr;
+    state->m_parent = nullptr;
+    state->m_cmd = nullptr;
+    state = nullptr;
 }
 
 } // namespace undo

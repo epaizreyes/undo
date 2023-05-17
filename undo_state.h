@@ -31,12 +31,10 @@ public:
         if (m_cmd)
             m_cmd->dispose();
 
-#ifdef _DEBUG
         m_prev = nullptr;
         m_next = nullptr;
         m_parent = nullptr;
         m_cmd = nullptr;
-#endif
     }
 
     std::shared_ptr<UndoState> prev() const { return m_prev; }
